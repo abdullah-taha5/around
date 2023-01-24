@@ -7,7 +7,7 @@ const {
   cloudinaryRemoveImage,
   cloudinaryRemoveMultipleImage,
 } = require("../utils/cloudinary");
-const { Blog } = require("../models/blog");
+const { Blog } = require("../models/Blog");
 const { Comment } = require("../models/Comment");
 
 /**
