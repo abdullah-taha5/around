@@ -70,6 +70,10 @@ const login = async (req, res) => {
         email: user.email,
         profilePhoto: user.profilePhoto,
         adminRole: user.adminRole,
+        fullAddress: user.fullAddress,
+        floorNumber: user.floorNumber,
+        flatNumber: user.flatNumber,
+        note: user.note,
       },
       process.env.JWT_SECRET_KEY
     );

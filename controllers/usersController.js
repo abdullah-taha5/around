@@ -18,7 +18,10 @@ const { Comment } = require("../models/Comment");
  */
 
 const getAllUsers = async (req, res) => {
-  const users = await User.find().select("-password").populate("blogs");
+  const users = await User.find()
+    .select("-password")
+    .populate("blogs")
+    .populate("orders");
   res.status(200).json(users);
 };
 
@@ -31,7 +34,16 @@ const getAllUsers = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   const { id } = req.params;
-  const user = await User.findById(id).select("-password").populate("blogs");
+  const user = await User.findById(id)
+    .select("-password")
+    .populate("blogs")
+    .populate({
+      path: "orders",
+      populate: {
+        path: "driver",
+        select: "-password",
+      },
+    });
   if (user) {
     res.status(200).json(user);
   } else {
@@ -90,7 +102,11 @@ const updateUserProfile = async (req, res) => {
       $set: {
         username: req.body.username,
         password: req.body.password,
-        adminRole: req.body.adminRole
+        adminRole: req.body.adminRole,
+        fullAddress: req.body.fullAddress,
+        floorNumber: req.body.floorNumber,
+        flatNumber: req.body.flatNumber,
+        note: req.body.note,
       },
     },
     { new: true }

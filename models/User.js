@@ -17,17 +17,28 @@ const UserSchema = mongoose.Schema(
       },
     },
     adminRole: { type: Boolean, required: true },
+    fullAddress: { type: String, trim: true },
+    floorNumber: { type: Number, trim: true },
+    flatNumber: { type: Number, trim: true },
+    note: { type: String, trim: true },
   },
   {
     timestamps: true,
-    toJSON: {virtuals: true},
-    toObject: {virtuals: true},
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
 // Populate Blogs
 UserSchema.virtual("blogs", {
   ref: "Blog",
+  foreignField: "user",
+  localField: "_id",
+});
+
+// Populate Orders
+UserSchema.virtual("orders", {
+  ref: "Order",
   foreignField: "user",
   localField: "_id",
 });
@@ -60,6 +71,11 @@ function validateUpdateUser(obj) {
     username: Joi.string().trim().min(3).max(100),
     password: Joi.string().trim().min(8),
     adminRole: Joi.boolean(),
+    fullAddress: Joi.string().trim(),
+    floorNumber: Joi.number(),
+    flatNumber: Joi.number(),
+    note: Joi.string().trim(),
+
   });
   return schema.validate(obj);
 }
