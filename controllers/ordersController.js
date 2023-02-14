@@ -134,7 +134,7 @@ const payOrder = async (req, res) => {
       serviceType: "pay order",
       msisdn: process.env.MSISDN,
       orderId: req.params.id,
-      redirectUrl: "http://localhost:3000/user/orders",
+      redirectUrl: "https://around.netlify.app/user/orders",
     },
     process.env.SECRET,
     {
