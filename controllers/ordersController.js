@@ -134,7 +134,6 @@ const payOrder = async (req, res) => {
       serviceType: "pay order",
       msisdn: process.env.MSISDN,
       orderId: req.params.id,
-      redirectUrl: "https://aquamarine-vacherin-0e226b.netlify.app/user/orders",
     },
     process.env.SECRET,
     {
@@ -154,7 +153,7 @@ const payOrder = async (req, res) => {
           //  Getting the operation id
           const OperationId = JSON.parse(body).id;
 
-          res.status(200).json({ urlPay: requestUrl + OperationId });
+          res.status(200).json({ urlPay: requestUrl + OperationId, OperationId });
         })
         .catch((error) => {
           res.json({ message: error });
