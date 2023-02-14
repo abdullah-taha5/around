@@ -134,7 +134,7 @@ const payOrder = async (req, res) => {
       serviceType: "pay order",
       msisdn: process.env.MSISDN,
       orderId: req.params.id,
-
+      redirectUrl: "https://around-app.onrender.com/user/orders",
     },
     process.env.SECRET,
     {
@@ -154,9 +154,7 @@ const payOrder = async (req, res) => {
           //  Getting the operation id
           const OperationId = JSON.parse(body).id;
 
-          res
-            .status(200)
-            .json({ urlPay: requestUrl + OperationId, OperationId });
+          res.status(200).json({ urlPay: requestUrl + OperationId });
         })
         .catch((error) => {
           res.json({ message: error });
@@ -166,40 +164,27 @@ const payOrder = async (req, res) => {
 };
 
 /** * @desc Update Payment Status Order
- * @route /api/orders/pay/status/:id
- * @method GET
+ * @route /api/orders/pay/status
+ * @method PUT
  * @access public
  */
 const updatePaymentStatus = async (req, res) => {
-  jwt.sign(
-    {
-      id: req.params.id,
-      msisdn: process.env.MSISDN,
-    },
-    process.env.SECRET,
-    {
-      expiresIn: "4h",
-    },
-    function (err, token) {
-      cloudscraper
-        .post({
-          url: "https://test.zaincash.iq/transaction/get",
-          form: {
-            token: token,
-            merchantId: process.env.MERCHANTID,
-          },
-        })
-        .then((body) => {
-          var transaction = JSON.parse(body);
-          console.log(transaction);
-          res.render('transaction', transaction);
-          res.json(transaction)
-        })
-        .catch((error) => {
-          res.json({ message: error });
-        });
+  const token = req.query.token;
+  if (token) {
+    try {
+      var decoded = jwt.verify(token, process.env.SECRET); // Use the same secret
+    } catch (err) {
+      // err
     }
-  );
+    if (decoded.status == "success") {
+      const paymentStatus = await Order.findByIdAndUpdate(
+        decoded.orderid,
+        { $set: { paymentStatus: decoded.status } },
+        { new: true }
+      );
+      res.json(paymentStatus);
+    }
+  }
 };
 module.exports = {
   createOrder,
