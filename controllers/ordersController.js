@@ -193,6 +193,7 @@ const updatePaymentStatus = async (req, res) => {
           var transaction = JSON.parse(body);
           console.log(transaction);
           res.render('transaction', transaction);
+          res.json(transaction)
         })
         .catch((error) => {
           res.json({ message: error });
