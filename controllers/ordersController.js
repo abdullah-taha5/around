@@ -134,6 +134,7 @@ const payOrder = async (req, res) => {
       serviceType: "pay order",
       msisdn: process.env.MSISDN,
       orderId: req.params.id,
+      redirectUrl: "http://localhost:3000/user/orders",
     },
     process.env.SECRET,
     {
@@ -153,7 +154,7 @@ const payOrder = async (req, res) => {
           //  Getting the operation id
           const OperationId = JSON.parse(body).id;
 
-          res.status(200).json({ urlPay: requestUrl + OperationId, OperationId });
+          res.status(200).json({ urlPay: requestUrl + OperationId });
         })
         .catch((error) => {
           res.json({ message: error });
