@@ -31,5 +31,5 @@ router
 router.route("/pay/:id").get(verifyToken, payOrder);
 
 // /api/orders/pay/status
-router.route("/pay/status").put(updatePaymentStatus);
+router.route("/pay/status/:id").get(updatePaymentStatus);
 module.exports = router;

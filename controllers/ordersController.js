@@ -154,7 +154,9 @@ const payOrder = async (req, res) => {
           //  Getting the operation id
           const OperationId = JSON.parse(body).id;
 
-          res.status(200).json({ urlPay: requestUrl + OperationId});
+          res
+            .status(200)
+            .json({ urlPay: requestUrl + OperationId, OperationId });
         })
         .catch((error) => {
           res.json({ message: error });
@@ -164,27 +166,39 @@ const payOrder = async (req, res) => {
 };
 
 /** * @desc Update Payment Status Order
- * @route /api/orders/pay/status
- * @method PUT
+ * @route /api/orders/pay/status/:id
+ * @method GET
  * @access public
  */
 const updatePaymentStatus = async (req, res) => {
-  const token = req.query.token;
-  if (token) {
-    try {
-      var decoded = jwt.verify(token, process.env.SECRET); // Use the same secret
-    } catch (err) {
-      // err
+  jwt.sign(
+    {
+      id: req.params.id,
+      msisdn: process.env.MSISDN,
+    },
+    process.env.SECRET,
+    {
+      expiresIn: "4h",
+    },
+    function (err, token) {
+      cloudscraper
+        .post({
+          url: "https://test.zaincash.iq/transaction/get",
+          form: {
+            token: token,
+            merchantId: process.env.MERCHANTID,
+          },
+        })
+        .then((body) => {
+          var transaction = JSON.parse(body);
+          console.log(transaction);
+          res.render('transaction', transaction);
+        })
+        .catch((error) => {
+          res.json({ message: error });
+        });
     }
-    if (decoded.status == "success") {
-      const paymentStatus = await Order.findByIdAndUpdate(
-        decoded.orderid,
-        { $set: { paymentStatus: decoded.status } },
-        { new: true }
-      );
-      res.json(paymentStatus);
-    }
-  }
+  );
 };
 module.exports = {
   createOrder,
