@@ -134,7 +134,7 @@ const payOrder = async (req, res) => {
       serviceType: "pay order",
       msisdn: process.env.MSISDN,
       orderId: req.params.id,
-      redirectUrl: "https://around-app.onrender.com/user/orders",
+      redirectUrl: "https://aquamarine-vacherin-0e226b.netlify.app/user/orders",
     },
     process.env.SECRET,
     {
