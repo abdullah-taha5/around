@@ -53,7 +53,7 @@ const changeSectionHero = async (req, res) => {
  * @desc Get Hero Section
  * @route /api/section/hero
  * @method GET
- * @access private (only admin)
+ * @access public
  */
 const getAllHeroSection = async (req, res) => {
   const heros = await FrontEndSettings.find().select("homePage.sectionHero");
