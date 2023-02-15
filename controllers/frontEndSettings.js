@@ -55,6 +55,7 @@ const changeSectionHero = async (req, res) => {
  * @method GET
  * @access public
  */
+
 const getAllHeroSection = async (req, res) => {
   const heros = await FrontEndSettings.find().select("homePage.sectionHero");
   res.status(200).json(heros[heros.length - 1].homePage.sectionHero[0]);
