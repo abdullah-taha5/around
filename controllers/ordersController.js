@@ -152,9 +152,9 @@ const payOrder = async (req, res) => {
         })
         .then((body) => {
           //  Getting the operation id
-          const OperationId = JSON.parse(body).id;
+          const operationId = JSON.parse(body).id;
 
-          res.status(200).json({ urlPay: requestUrl + OperationId });
+          res.status(200).json({ urlPay: requestUrl + operationId, operationId });
         })
         .catch((error) => {
           res.json({ message: error });

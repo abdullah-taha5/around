@@ -10,6 +10,6 @@ router
     verifyTokenAndAdmin,
     photoUpload.single("background"),
     changeSectionHero
-  ).get(verifyTokenAndAdmin, getAllHeroSection);
+  ).get(getAllHeroSection);
 
 module.exports = router;
