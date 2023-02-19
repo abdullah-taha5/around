@@ -4,8 +4,11 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
 const bodyParser = require("body-parser");
+const path = require("path");
 require("dotenv").config();
 
+// Static Folder
+app.use(express.static(path.join(__dirname, "images")));
 // Middleware
 app.use(cors());
 app.use(express.json());

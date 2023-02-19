@@ -26,7 +26,6 @@ const FrontEndSettingsSchema = mongoose.Schema(
             type: Object,
             default: {
               url: "",
-              publicId: null,
             },
           },
         },

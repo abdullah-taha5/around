@@ -63,12 +63,12 @@ const deleteUserProfile = async (req, res) => {
   // Get all blogs from DB
   const blogs = await Blog.find({ user: user._id });
   // Get the public ids from the blogs
-  const publicIds = await blogs?.map((blog) => blog.image.publicId);
+  // const publicIds = await blogs?.map((blog) => blog.image.publicId);
 
   // Delete all blogs image from cloudinary that belong to this user
-  if (publicIds?.length > 0) {
-    await cloudinaryRemoveMultipleImage(publicIds);
-  }
+  // if (publicIds?.length > 0) {
+  //   await cloudinaryRemoveMultipleImage(publicIds);
+  // }
 
   // Delete user blogs & comments
   await Blog.deleteMany({ user: user._id });
@@ -128,33 +128,32 @@ const profilePhotoUpload = async (req, res) => {
   }
 
   // Get the path to the image
-  const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
+  // const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
 
   // Upload to cloudinary
-  const result = await cloudinaryUploadImage(imagePath);
+  // const result = await cloudinaryUploadImage(imagePath);
 
   // Get the user from DB
   const user = await User.findById(req.user.id);
 
   // Delete the old profile photo if exist
-  if (user.profilePhoto.publicId !== null) {
-    await cloudinaryRemoveImage(user.profilePhoto.publicId);
-  }
+  // if (user.profilePhoto.publicId !== null) {
+  //   await cloudinaryRemoveImage(user.profilePhoto.publicId);
+  // }
 
   // Change the profilePhoto field in the DB
   user.profilePhoto = {
-    url: result.secure_url,
-    publicId: result.public_id,
+    url: req.file.filename,
   };
   await user.save();
   // Send response to client
   res.status(200).json({
     message: "successfully uploaded",
-    profilePhoto: { url: result.secure_url, publicId: result.public_id },
+    profilePhoto: { url: req.file.filename},
   });
 
   // Remove image from the server
-  fs.unlinkSync(imagePath);
+  // fs.unlinkSync(imagePath);
 };
 module.exports = {
   getAllUsers,

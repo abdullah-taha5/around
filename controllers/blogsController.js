@@ -28,8 +28,8 @@ const createBlog = async (req, res) => {
     return res.status(400).json({ message: error.details[0].message });
   }
   // Upload photo
-  const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
-  const result = await cloudinaryUploadImage(imagePath);
+  // const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
+  // const result = await cloudinaryUploadImage(imagePath);
   // Create a new blog and save it to DB
   const { title, description, category } = req.body;
   const blog = await Blog.create({
@@ -38,14 +38,13 @@ const createBlog = async (req, res) => {
     category,
     user: req.user.id,
     image: {
-      url: result.secure_url,
-      publicId: result.public_id,
+      url: req.file.filename,
     },
   });
   // Send response to the client
   res.status(201).json(blog);
   // Remove image from the server
-  fs.unlinkSync(imagePath);
+  // fs.unlinkSync(imagePath);
 };
 
 /**
@@ -124,7 +123,7 @@ const deleteBlog = async (req, res) => {
     return res.status(404).json({ message: "Blog not found" });
   }
   await Blog.findByIdAndDelete(id);
-  await cloudinaryRemoveImage(blog.image.publicId);
+  // await cloudinaryRemoveImage(blog.image.publicId);
 
   // Delete all comments that belong to this post
   await Comment.deleteMany({ blogId: blog._id });
@@ -191,11 +190,11 @@ const updateBlogImage = async (req, res) => {
   }
 
   // Delete the old image
-  await cloudinaryRemoveImage(blog.image.publicId);
+  // await cloudinaryRemoveImage(blog.image.publicId);
 
   // Upload new photo
-  const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
-  const result = await cloudinaryUploadImage(imagePath);
+  // const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
+  // const result = await cloudinaryUploadImage(imagePath);
 
   // Update the image field in the DB
   const updatedBlog = await Blog.findByIdAndUpdate(
@@ -203,8 +202,7 @@ const updateBlogImage = async (req, res) => {
     {
       $set: {
         image: {
-          url: result.secure_url,
-          publicId: result.public_id,
+          url: req.file.filename,
         },
       },
     },
@@ -214,7 +212,7 @@ const updateBlogImage = async (req, res) => {
   res.status(200).json(updatedBlog);
 
   // Remove image from the server
-  fs.unlinkSync(imagePath);
+  // fs.unlinkSync(imagePath);
 };
 
 /**

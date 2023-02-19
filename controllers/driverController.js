@@ -177,33 +177,32 @@ const profilePhotoUpload = async (req, res) => {
   }
 
   // Get the path to the image
-  const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
+  // const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
 
   // Upload to cloudinary
-  const result = await cloudinaryUploadImage(imagePath);
+  // const result = await cloudinaryUploadImage(imagePath);
 
   // Get the user from DB
   const driver = await Driver.findById(req.user.id);
 
   // Delete the old profile photo if exist
-  if (driver.profilePhoto.publicId !== null) {
-    await cloudinaryRemoveImage(driver.profilePhoto.publicId);
-  }
+  // if (driver.profilePhoto.publicId !== null) {
+  //   await cloudinaryRemoveImage(driver.profilePhoto.publicId);
+  // }
 
   // Change the profilePhoto field in the DB
   driver.profilePhoto = {
-    url: result.secure_url,
-    publicId: result.public_id,
+    url: req.file.filename,
   };
   await driver.save();
   // Send response to client
   res.status(200).json({
     message: "successfully uploaded",
-    profilePhoto: { url: result.secure_url, publicId: result.public_id },
+    profilePhoto: { url: req.file.filename},
   });
 
   // Remove image from the server
-  fs.unlinkSync(imagePath);
+  // fs.unlinkSync(imagePath);
 };
 
 module.exports = {

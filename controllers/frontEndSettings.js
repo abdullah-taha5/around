@@ -23,8 +23,8 @@ const changeSectionHero = async (req, res) => {
     return res.status(400).json({ message: error.details[0].message });
   }
   // Upload Background Image
-  const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
-  const result = await cloudinaryUploadImage(imagePath);
+  // const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
+  // const result = await cloudinaryUploadImage(imagePath);
   // Change Section Hero and save it to DB
   const { h1, spanOne, spanTwo, button } = req.body;
   const sectionHero = await FrontEndSettings.create({
@@ -36,8 +36,7 @@ const changeSectionHero = async (req, res) => {
           spanTwo,
           button,
           background: {
-            url: result.secure_url,
-            publicId: result.public_id,
+            url: req.file.filename,
           },
         },
       ],
@@ -46,7 +45,7 @@ const changeSectionHero = async (req, res) => {
   // Send response to the client
   res.status(201).json(sectionHero);
   // Remove image from the server
-  fs.unlinkSync(imagePath);
+  // fs.unlinkSync(imagePath);
 };
 
 /**
