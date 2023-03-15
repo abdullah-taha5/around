@@ -8,10 +8,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const path = require("path");
 const fs = require("fs");
-const {
-  cloudinaryRemoveImage,
-  cloudinaryUploadImage,
-} = require("../utils/cloudinary");
+
 
 /**
  * @desc register a new driver
@@ -26,11 +23,11 @@ const registerDriver = async (req, res) => {
     return res.status(400).json({ message: error.details[0].message });
   }
 
-  const { username, email, password, vehicle, vehicleNumber, vehicleColor } =
+  const { username, phoneNumber, password, vehicle, vehicleNumber, vehicleColor } =
     req.body;
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-  const driver = await Driver.findOne({ email });
+  const driver = await Driver.findOne({ phoneNumber });
 
   if (driver) {
     return res.status(400).json({ message: "This driver already added" });
@@ -38,7 +35,7 @@ const registerDriver = async (req, res) => {
     try {
       await Driver.create({
         username,
-        email,
+        phoneNumber,
         password: hashedPassword,
         vehicle,
         vehicleNumber,
@@ -63,11 +60,11 @@ const loginDriver = async (req, res) => {
     return res.status(400).json({ message: error.details[0].message });
   }
 
-  const { email, password } = req.body;
-  const driver = await Driver.findOne({ email });
+  const { phoneNumber, password } = req.body;
+  const driver = await Driver.findOne({ phoneNumber });
 
   if (!driver) {
-    return res.status(400).json({ message: "Invalid email or password" });
+    return res.status(400).json({ message: "Invalid Phone Number or password" });
   }
 
   const isPasswordValid = await bcrypt.compare(password, driver.password);
@@ -77,7 +74,7 @@ const loginDriver = async (req, res) => {
       {
         id: driver._id,
         username: driver.username,
-        email: driver.email,
+        phoneNumber: driver.phoneNumber,
         profilePhoto: driver.profilePhoto,
         vehicle: driver.vehicle,
         vehicleNumber: driver.vehicleNumber,
@@ -87,7 +84,7 @@ const loginDriver = async (req, res) => {
     );
     return res.json({ token });
   } else {
-    res.status(400).json({ message: "Invalid email or password" });
+    res.status(400).json({ message: "Invalid Phone Number or password" });
   }
 };
 /**
@@ -98,7 +95,10 @@ const loginDriver = async (req, res) => {
  */
 
 const getAllDrivers = async (req, res) => {
-  const drivers = await Driver.find().select("-password").populate("orders");
+  const drivers = await Driver.find()
+    .select("-password")
+    .populate("orders")
+    .populate("notificationsDriver");
   res.status(200).json(drivers);
 };
 /**
@@ -117,7 +117,14 @@ const getDriver = async (req, res) => {
         path: "user",
         select: "-password",
       },
-    });
+    }).populate({
+      path: "ordersByReceipts",
+      populate: {
+        path: "user",
+        select: "-password",
+      },
+    })
+    .populate("notificationsDriver");
   res.status(200).json(driver);
 };
 /**
@@ -176,19 +183,8 @@ const profilePhotoUpload = async (req, res) => {
     return res.status(400).json({ message: "No image provided" });
   }
 
-  // Get the path to the image
-  // const imagePath = path.join(__dirname, `../images/${req.file.filename}`);
-
-  // Upload to cloudinary
-  // const result = await cloudinaryUploadImage(imagePath);
-
   // Get the user from DB
   const driver = await Driver.findById(req.user.id);
-
-  // Delete the old profile photo if exist
-  // if (driver.profilePhoto.publicId !== null) {
-  //   await cloudinaryRemoveImage(driver.profilePhoto.publicId);
-  // }
 
   // Change the profilePhoto field in the DB
   driver.profilePhoto = {
@@ -198,11 +194,8 @@ const profilePhotoUpload = async (req, res) => {
   // Send response to client
   res.status(200).json({
     message: "successfully uploaded",
-    profilePhoto: { url: req.file.filename},
+    profilePhoto: { url: req.file.filename },
   });
-
-  // Remove image from the server
-  // fs.unlinkSync(imagePath);
 };
 
 module.exports = {

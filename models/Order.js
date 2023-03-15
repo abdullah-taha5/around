@@ -11,7 +11,7 @@ const OrderSchema = mongoose.Schema(
     driver: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Driver",
-      default: null
+      default: null,
     },
     orderId: {
       type: Number,
@@ -23,6 +23,7 @@ const OrderSchema = mongoose.Schema(
     paymentStatus: {
       type: String,
     },
+    orderStatus: { type: String, default: "New" },
   },
   { timestamps: true }
 );
@@ -31,12 +32,12 @@ const Order = mongoose.model("Order", OrderSchema);
 
 const counterSchema = {
   orderId: {
-    type: String
+    type: String,
   },
   seq: {
-    type: Number
-  }
-}
+    type: Number,
+  },
+};
 
 const counterModel = mongoose.model("counterOrders", counterSchema);
 
@@ -51,8 +52,86 @@ function validateCreateOrder(obj) {
 
 
 
+//  pay a fine receipt
+const FineReceiptSchema = mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    driver: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Driver",
+      default: null,
+    },
+    orderId: {
+      type: Number,
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    paymentStatus: {
+      type: String,
+    },
+    vehicleNumber: {
+      type: String,
+      required: true,
+    },
+    receiptNumber: {
+      type: String,
+      required: true,
+    },
+    dateFine: {
+      type: String,
+      required: true,
+    },
+    fineReceipt: {
+      type: String,
+      required: true,
+    },
+    driverReceipt: {
+      type: String,
+    },
+    annual: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const OrderPayFineReceipt = mongoose.model("OrderPayFineReceipt", FineReceiptSchema);
+
+const counterOrdersPayReceiptSchema = {
+  orderId: {
+    type: String,
+  },
+  seq: {
+    type: Number,
+  },
+};
+
+const PayReceipt = mongoose.model("PayReceipt", counterOrdersPayReceiptSchema);
+
+
+//Validate Create Order Pay your fine on behalf
+function validateCreateOrderPayFine(obj) {
+  const schema = Joi.object({
+    amount: Joi.number().required(),
+    paymentStatus: Joi.string().trim(),
+    vehicleNumber: Joi.string().trim(),
+    receiptNumber: Joi.string().trim(),
+    dateFine: Joi.string().trim(),
+  });
+  return schema.validate(obj);
+}
 module.exports = {
   Order,
   counterModel,
   validateCreateOrder,
+  OrderPayFineReceipt,
+  validateCreateOrderPayFine,
+  PayReceipt
 };

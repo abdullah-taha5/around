@@ -1,6 +1,9 @@
 const { Order, validateCreateOrder, counterModel } = require("../models/Order");
 const jwt = require("jsonwebtoken");
 const cloudscraper = require("cloudscraper");
+const { NotificationsDriver, NotificationAdmin, NotificationsClient } = require("../models/Notifications");
+const Pusher = require("pusher");
+const puppeteer = require("puppeteer");
 
 /**
  * @desc Create New Order
@@ -9,18 +12,12 @@ const cloudscraper = require("cloudscraper");
  * @access public
  */
 const createOrder = async (req, res) => {
-  // Validation for data
-  const { error } = validateCreateOrder(req.body);
-  if (error) {
-    return res.status(400).json({ message: error.details[0].message });
-  }
-
   // Counter Order Id
   counterModel.findOneAndUpdate(
     { orderId: "autoval" },
     { $inc: { seq: 1 } },
     { new: true },
-    (err, cd) => {
+    async (err, cd) => {
       let seqId;
       if (cd == null) {
         const newVal = new counterModel({ orderId: "autoval", seq: 1 });
@@ -29,16 +26,31 @@ const createOrder = async (req, res) => {
       } else {
         seqId = cd.seq;
       }
+
       // Create a new order and save it to DB
-      const { driver, amount } = req.body;
-      const order = Order.create({
+      const { driver, total } = req.body;
+      const order = await Order.create({
         user: req.user.id,
         driver,
-        amount,
+        amount: total,
         orderId: seqId,
       });
+
       // Send response to the client
-      res.status(201).json({ message: "Created order successfully" });
+      await res.status(201).json(order);
+     
+      NotificationAdmin.create({ notification: `New Order #${seqId}` });
+      const pusher = new Pusher({
+        appId: "1560841",
+        key: "bc4967bba1165cd99700",
+        secret: "d5ed6309cd0cd59cc7d0",
+        cluster: "eu",
+        useTLS: true,
+      });
+
+      pusher.trigger("my-channel", "notifications-admin", {
+        message: `New Order #${seqId}`,
+      });
     }
   );
 };
@@ -51,12 +63,27 @@ const createOrder = async (req, res) => {
  */
 
 const getAllOrders = async (req, res) => {
+  const ORDER_PER_PAGE = 10;
+  const { pageNumber } = req.query;
   const orders = await Order.find()
+  .skip((pageNumber - 1) * ORDER_PER_PAGE)
+  .limit(ORDER_PER_PAGE)
+  .sort({ createdAt: -1 })
     .populate("user", ["-password"])
     .populate("driver", ["-password"]);
   res.status(200).json(orders);
 };
 
+/**
+ * @desc Get Blogs Count
+ * @route /api/orders/count
+ * @method GET
+ * @access public
+ */
+const getOrdersCount = async (req, res) => {
+  const count = await Order.count();
+  res.status(200).json(count);
+};
 /**
  * @desc Get Single Order
  * @route /api/orders/:id
@@ -74,6 +101,42 @@ const getSingleOrder = async (req, res) => {
   res.status(200).json(order);
 };
 
+/**
+ * @desc Search Order
+ * @route /api/orders/search
+ * @method GET
+ * @access public
+ */
+const searchOrder = async (req, res) => {
+  (async () => {
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+    await page.goto("https://itp.gov.iq/carSearch.php");
+
+    await page.select('select[name="CarLetter"]', req.body.vehicleLetter);
+    await page.type('input[type="text"]', req.body.vehicleNum);
+    await page.select('select[name="CarReg"]', req.body.vehiclePlace);
+    await page.select('select[name="CarType"]', req.body.vehicleType);
+    await Promise.all([
+      page.click('input[name="submit"]'),
+      page.waitForNavigation(),
+    ]);
+    try {
+      const tbodyHtml = await page.evaluate(() => {
+        const tbody = document.querySelector(
+          "#block-gavias-batiz-content > div > table.blueTable > tbody"
+        );
+        return tbody.innerHTML.trim().replace(/\n\t\t/g, " ");
+      });
+      const total = await page.$eval("#blink", (el) => el.textContent.trim());
+      res.json({ tbodyHtml, total });
+    } catch (error) {
+      return res.status(404).json({ message: "Inserted data is wrong" });
+    }
+
+    await browser.close();
+  })();
+};
 /**
  * @desc Delete Order
  * @route /api/orders/:id
@@ -111,8 +174,58 @@ const assignDriver = async (req, res) => {
   )
     .populate("user", ["-password"])
     .populate("driver", ["-password"]);
+    NotificationsDriver.create({
+    driver: req.body.driver,
+    notification: req.body.notification,
+  });
+  const pusher = new Pusher({
+    appId: "1560841",
+    key: "bc4967bba1165cd99700",
+    secret: "d5ed6309cd0cd59cc7d0",
+    cluster: "eu",
+    useTLS: true,
+  });
+  await pusher.trigger("my-channel", "notifications-driver", {
+    message: req.body.notification,
+    driver: req.body.driver,
+  });
 
   res.status(200).json(assignedDriver);
+};
+/**
+ * @desc Update Order Status
+ * @route /api/orders/order-status/:id
+ * @method PUT
+ * @access private (only admin)
+ */
+const orderStatus = async (req, res) => {
+  // Update Order Status
+  const order = await Order.findByIdAndUpdate(
+    req.params.id,
+    {
+      $set: {
+        orderStatus: req.body.orderStatus,
+      },
+    },
+    { new: true }
+  );
+  NotificationsClient.create({
+    user: req.body.user,
+    notification: req.body.notification,
+  });
+  const pusher = new Pusher({
+    appId: "1560841",
+    key: "bc4967bba1165cd99700",
+    secret: "d5ed6309cd0cd59cc7d0",
+    cluster: "eu",
+    useTLS: true,
+  });
+
+  await pusher.trigger("my-channel", "notifications-client", {
+    message: req.body.notification,
+    user: req.body.user,
+  });
+  res.status(200).json(order);
 };
 
 /**
@@ -134,12 +247,12 @@ const payOrder = async (req, res) => {
       serviceType: "pay order",
       msisdn: process.env.MSISDN,
       orderId: req.params.id,
-      redirectUrl: "https://around-app.netlify.app/user/orders/",
+      redirectUrl: "https://around-app.netlify.app/user/orders",
     },
     process.env.SECRET,
     {
-      expiresIn: "4h",
-    },
+      expiresIn: '4h'
+  },
     function (err, token) {
       cloudscraper
         .post({
@@ -153,10 +266,13 @@ const payOrder = async (req, res) => {
         .then((body) => {
           //  Getting the operation id
           const operationId = JSON.parse(body).id;
-
-          res.status(200).json({ urlPay: requestUrl + operationId, operationId });
+          
+          res
+            .status(200)
+            .json({ urlPay: requestUrl + operationId, operationId });
         })
         .catch((error) => {
+          
           res.json({ message: error });
         });
     }
@@ -175,6 +291,7 @@ const updatePaymentStatus = async (req, res) => {
       var decoded = jwt.verify(token, process.env.SECRET); // Use the same secret
     } catch (err) {
       // err
+      console.log(err);
     }
     if (decoded.status == "success") {
       const paymentStatus = await Order.findByIdAndUpdate(
@@ -194,4 +311,7 @@ module.exports = {
   assignDriver,
   payOrder,
   updatePaymentStatus,
+  orderStatus,
+  searchOrder,
+  getOrdersCount
 };

@@ -7,7 +7,7 @@ const UserSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    email: { type: String, required: true, trim: true },
+    phoneNumber: { type: Number, required: true, trim: true },
     password: { type: String, required: true, minlength: 8, trim: true },
     profilePhoto: {
       type: Object,
@@ -16,10 +16,12 @@ const UserSchema = mongoose.Schema(
       },
     },
     adminRole: { type: Boolean, required: true },
+    phone: { type: Number, trim: true },
     fullAddress: { type: String, trim: true },
     floorNumber: { type: Number, trim: true },
     flatNumber: { type: Number, trim: true },
     note: { type: String, trim: true },
+    notifications: { type: Array },
   },
   {
     timestamps: true,
@@ -28,19 +30,25 @@ const UserSchema = mongoose.Schema(
   }
 );
 
-// Populate Blogs
-UserSchema.virtual("blogs", {
-  ref: "Blog",
-  foreignField: "user",
-  localField: "_id",
-});
-
 // Populate Orders
 UserSchema.virtual("orders", {
   ref: "Order",
   foreignField: "user",
   localField: "_id",
 });
+// Populate Orders By Receipts
+UserSchema.virtual("ordersByReceipts", {
+  ref: "OrderPayFineReceipt",
+  foreignField: "user",
+  localField: "_id",
+});
+// Populate Notifications
+UserSchema.virtual("notificationsClient", {
+  ref: "NotificationsClient",
+  foreignField: "user",
+  localField: "_id",
+});
+
 // User Model
 const User = mongoose.model("User", UserSchema);
 
@@ -48,7 +56,7 @@ const User = mongoose.model("User", UserSchema);
 function validateRegisterUser(obj) {
   const schema = Joi.object({
     username: Joi.string().trim().min(3).max(100).required(),
-    email: Joi.string().trim().min(5).max(100).required().email(),
+    phoneNumber: Joi.number().required(),
     password: Joi.string().trim().min(8).required(),
     adminRole: Joi.boolean(),
   });
@@ -58,7 +66,7 @@ function validateRegisterUser(obj) {
 // Validate Login User
 function validateLoginUser(obj) {
   const schema = Joi.object({
-    email: Joi.string().trim().min(5).max(100).required().email(),
+    phoneNumber: Joi.number().required(),
     password: Joi.string().trim().min(8).required(),
   });
   return schema.validate(obj);
@@ -70,11 +78,11 @@ function validateUpdateUser(obj) {
     username: Joi.string().trim().min(3).max(100),
     password: Joi.string().trim().min(8),
     adminRole: Joi.boolean(),
+    phone: Joi.number(),
     fullAddress: Joi.string().trim(),
     floorNumber: Joi.number(),
     flatNumber: Joi.number(),
     note: Joi.string().trim(),
-
   });
   return schema.validate(obj);
 }

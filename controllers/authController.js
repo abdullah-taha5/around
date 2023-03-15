@@ -19,10 +19,10 @@ const register = async (req, res) => {
     return res.status(400).json({ message: error.details[0].message });
   }
 
-  const { username, email, password, adminRole } = req.body;
+  const { username, phoneNumber, password, adminRole } = req.body;
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ phoneNumber });
 
   if (user) {
     return res.status(400).json({ message: "This user already registered" });
@@ -30,7 +30,7 @@ const register = async (req, res) => {
     try {
       await User.create({
         username,
-        email,
+        phoneNumber,
         password: hashedPassword,
         adminRole,
       });
@@ -53,11 +53,12 @@ const login = async (req, res) => {
     return res.status(400).json({ message: error.details[0].message });
   }
 
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  const { phoneNumber, password } = req.body;
+  const user = await User.findOne({ phoneNumber });
+
 
   if (!user) {
-    return res.status(400).json({ message: "Invalid email or password" });
+    return res.status(400).json({ message: "Invalid Phone Number or password" });
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -67,7 +68,50 @@ const login = async (req, res) => {
       {
         id: user._id,
         username: user.username,
-        email: user.email,
+        phoneNumber: user.phoneNumber,
+        profilePhoto: user.profilePhoto,
+        adminRole: user.adminRole,
+        phone: user.phone,
+        fullAddress: user.fullAddress,
+        floorNumber: user.floorNumber,
+        flatNumber: user.flatNumber,
+        note: user.note,
+      },
+      process.env.JWT_SECRET_KEY
+    );
+    return res.json({ token });
+  } else {
+    res.status(400).json({ message: "Invalid Phone Number or password" });
+  }
+};
+
+/**
+ * @desc Admin Login
+ * @route /api/auth/admin/login
+ * @method POST
+ * @access public
+ */
+const adminLogin = async (req, res) => {
+  const { error } = validateLoginUser(req.body);
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+
+  const { phoneNumber, password } = req.body;
+  const user = await User.findOne({ phoneNumber });
+
+  if (!user) {
+    return res.status(400).json({ message: "Invalid Phone Number or password" });
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+
+  if (isPasswordValid && user.adminRole) {
+    const token = jwt.sign(
+      {
+        id: user._id,
+        username: user.username,
+        phoneNumber: user.phoneNumber,
         profilePhoto: user.profilePhoto,
         adminRole: user.adminRole,
         fullAddress: user.fullAddress,
@@ -79,11 +123,11 @@ const login = async (req, res) => {
     );
     return res.json({ token });
   } else {
-    res.status(400).json({ message: "Invalid email or password" });
+    res.status(400).json({ message: "Invalid Phone Number or password" });
   }
 };
-
 module.exports = {
   register,
   login,
+  adminLogin,
 };

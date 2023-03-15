@@ -7,7 +7,7 @@ const DriverSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    email: { type: String, required: true, trim: true },
+    phoneNumber: { type: Number, required: true, trim: true },
     password: { type: String, required: true, minlength: 8, trim: true },
     profilePhoto: {
       type: Object,
@@ -45,13 +45,25 @@ DriverSchema.virtual("orders", {
   foreignField: "driver",
   localField: "_id",
 });
+// Populate Orders By Receipts
+DriverSchema.virtual("ordersByReceipts", {
+  ref: "OrderPayFineReceipt",
+  foreignField: "driver",
+  localField: "_id",
+});
+// Populate Notifications
+DriverSchema.virtual("notificationsDriver", {
+  ref: "NotificationsDriver",
+  foreignField: "driver",
+  localField: "_id",
+});
 const Driver = mongoose.model("Driver", DriverSchema);
 
 // Validate Register Driver
 function validateRegisterDriver(obj) {
   const schema = Joi.object({
     username: Joi.string().trim().min(3).max(100).required(),
-    email: Joi.string().trim().min(5).max(100).required().email(),
+    phoneNumber: Joi.number().required(),
     password: Joi.string().trim().min(8).required(),
     vehicle: Joi.string().required(),
     vehicleNumber: Joi.string().required(),
@@ -63,7 +75,7 @@ function validateRegisterDriver(obj) {
 // Validate Login Driver
 function validateLoginDriver(obj) {
   const schema = Joi.object({
-    email: Joi.string().trim().min(5).max(100).required().email(),
+    phoneNumber: Joi.number().required(),
     password: Joi.string().trim().min(8).required(),
   });
   return schema.validate(obj);

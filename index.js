@@ -26,13 +26,19 @@ mongoose
 // Routes
 app.use("/api/auth", require("./routes/authRoute"));
 app.use("/api/users", require("./routes/usersRoute"));
-app.use("/api/blogs", require("./routes/blogsRoute"));
-app.use("/api/comments", require("./routes/commentsRoute"));
-app.use("/api/categories", require("./routes/categoryRoute"));
 app.use("/api/driver", require("./routes/driverRoute"));
 app.use("/api/orders", require("./routes/ordersRoute"));
-app.use("/api/section", require("./routes/frontEndSettingsRoute"));
+app.use("/api/order-pay-receipt", require("./routes/orderPayReceiptRoute"));
+app.use("/api/notifications", require("./routes/notificationsRoute"));
+app.use("/api/vehicles", require("./routes/searchVehiclesRoute"));
+app.use("/api/footer", require("./routes/footerRoute"));
+app.use("/api/hero", require("./routes/heroRoute"));
+app.use("/api/commission", require("./routes/commissionRoute"));
+app.use("/api/term", require("./routes/termRoute"));
 
+app.get('/', (req, res) => {
+  return res.send('StackDeans');
+})
 // Running The Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
