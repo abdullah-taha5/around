@@ -3,7 +3,16 @@ const jwt = require("jsonwebtoken");
 const cloudscraper = require("cloudscraper");
 const { NotificationsDriver, NotificationAdmin, NotificationsClient } = require("../models/Notifications");
 const Pusher = require("pusher");
-const puppeteer = require("puppeteer");
+// const puppeteer = require("puppeteer-core");
+
+
+
+
+const puppeteer = require('puppeteer-extra');
+// const hidden = require('puppeteer-extra-plugin-stealth')
+
+// require executablePath from puppeteer
+const {executablePath} = require('puppeteer')
 
 /**
  * @desc Create New Order
@@ -103,21 +112,19 @@ const getSingleOrder = async (req, res) => {
 
 /**
  * @desc Search Order
- * @route /api/orders/search/order
- * @method POST
+ * @route /api/orders/search
+ * @method GET
  * @access public
  */
 const searchOrder = async (req, res) => {
   (async () => {
-    const browser = await puppeteer.launch({ headless: true,
-      args: [
-        // Required for Docker version of Puppeteer
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        // This will write shared memory files into /tmp instead of /dev/shm,
-        // because Docker’s default for /dev/shm is 64MB
-        '--disable-dev-shm-usage',
-      ] });
+    const browser = await puppeteer.launch({  args: ['--no-sandbox',],
+    headless: false,
+    ignoreHTTPSErrors: true,
+
+    // add this
+    executablePath: executablePath(),});
+    
     const page = await browser.newPage();
     await page.goto("https://itp.gov.iq/carSearch.php");
 
