@@ -3,8 +3,8 @@ const jwt = require("jsonwebtoken");
 const cloudscraper = require("cloudscraper");
 const { NotificationsDriver, NotificationAdmin, NotificationsClient } = require("../models/Notifications");
 const Pusher = require("pusher");
-const puppeteer = require("puppeteer-extra");
-const hidden = require('puppeteer-extra-plugin-stealth')
+const puppeteer = require("puppeteer");
+
 
 /**
  * @desc Create New Order
@@ -110,14 +110,17 @@ const getSingleOrder = async (req, res) => {
  */
 const searchOrder = async (req, res) => {
   (async () => {
-    puppeteer.use(hidden())
-    const browser = await puppeteer.launch({      args: [
+    
+    const browser = await puppeteer.launch({    args: [
       "--disable-setuid-sandbox",
       "--no-sandbox",
       "--single-process",
       "--no-zygote",
     ],
-    executablePath: puppeteer.executablePath(),});
+    executablePath:
+      process.env.NODE_ENV === "production"
+        ? process.env.PUPPETEER_EXECUTABLE_PATH
+        : puppeteer.executablePath(),});
     
     const page = await browser.newPage();
     await page.goto("https://itp.gov.iq/carSearch.php");
