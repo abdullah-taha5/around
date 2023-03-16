@@ -8,7 +8,7 @@ const puppeteer = require('puppeteer-extra');
 // const hidden = require('puppeteer-extra-plugin-stealth')
 // require executablePath from puppeteer
 const {executablePath} = require('puppeteer')
-const puppeteer = require("puppeteer-core");
+
 
 
 /**
