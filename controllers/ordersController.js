@@ -4,7 +4,7 @@ const cloudscraper = require("cloudscraper");
 const { NotificationsDriver, NotificationAdmin, NotificationsClient } = require("../models/Notifications");
 const Pusher = require("pusher");
 const puppeteer = require("puppeteer-core");
-const {executablePath} = require('puppeteer-core')
+const {executablePath} = require('puppeteer')
 
 /**
  * @desc Create New Order
