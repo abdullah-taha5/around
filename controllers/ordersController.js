@@ -3,12 +3,14 @@ const jwt = require("jsonwebtoken");
 const cloudscraper = require("cloudscraper");
 const { NotificationsDriver, NotificationAdmin, NotificationsClient } = require("../models/Notifications");
 const Pusher = require("pusher");
-// const puppeteer = require("puppeteer-core");
+
+
+
 const puppeteer = require('puppeteer-extra');
-// const hidden = require('puppeteer-extra-plugin-stealth')
+const hidden = require('puppeteer-extra-plugin-stealth')
+
 // require executablePath from puppeteer
 const {executablePath} = require('puppeteer')
-const puppeteer = require("puppeteer-core");
 
 
 /**
@@ -115,6 +117,7 @@ const getSingleOrder = async (req, res) => {
  */
 const searchOrder = async (req, res) => {
   (async () => {
+    puppeteer.use(hidden())
     const browser = await puppeteer.launch({  args: ['--no-sandbox',],
     headless: false,
     ignoreHTTPSErrors: true,
