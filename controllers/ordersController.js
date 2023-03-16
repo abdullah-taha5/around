@@ -4,6 +4,7 @@ const cloudscraper = require("cloudscraper");
 const { NotificationsDriver, NotificationAdmin, NotificationsClient } = require("../models/Notifications");
 const Pusher = require("pusher");
 const puppeteer = require("puppeteer-core");
+const {executablePath} = require('puppeteer-core')
 
 /**
  * @desc Create New Order
@@ -112,7 +113,8 @@ const searchOrder = async (req, res) => {
     const browser = await puppeteer.launch({ 
     args: ['--no-sandbox',],
     headless: true,
-    ignoreHTTPSErrors: true
+    ignoreHTTPSErrors: true,
+    executablePath: executablePath(),
     });
     const page = await browser.newPage();
     await page.goto("https://itp.gov.iq/carSearch.php");
