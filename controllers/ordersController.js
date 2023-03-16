@@ -109,7 +109,11 @@ const getSingleOrder = async (req, res) => {
  */
 const searchOrder = async (req, res) => {
   (async () => {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ 
+    args: ['--no-sandbox',],
+    headless: true,
+    ignoreHTTPSErrors: true
+    });
     const page = await browser.newPage();
     await page.goto("https://itp.gov.iq/carSearch.php");
 
