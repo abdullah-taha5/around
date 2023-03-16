@@ -3,12 +3,7 @@ const jwt = require("jsonwebtoken");
 const cloudscraper = require("cloudscraper");
 const { NotificationsDriver, NotificationAdmin, NotificationsClient } = require("../models/Notifications");
 const Pusher = require("pusher");
-<<<<<<< Updated upstream
-const puppeteer = require("puppeteer-core");
-const {executablePath} = require('puppeteer')
-=======
-const puppeteer = require('puppeteer');
->>>>>>> Stashed changes
+const puppeteer = require("puppeteer");
 
 /**
  * @desc Create New Order
@@ -114,27 +109,15 @@ const getSingleOrder = async (req, res) => {
  */
 const searchOrder = async (req, res) => {
   (async () => {
-<<<<<<< Updated upstream
-    const browser = await puppeteer.launch({ 
-    args: ['--no-sandbox',],
-    headless: true,
-    ignoreHTTPSErrors: true,
-    executablePath: executablePath(),
-    });
-=======
-
-    const browser = await puppeteer.launch({ 
-      headless: false,
-	args: [
-		// Required for Docker version of Puppeteer
-		'--no-sandbox',
-		'--disable-setuid-sandbox',
-		// This will write shared memory files into /tmp instead of /dev/shm,
-		// because Docker’s default for /dev/shm is 64MB
-		'--disable-dev-shm-usage',
-	]
-   });
->>>>>>> Stashed changes
+    const browser = await puppeteer.launch({ headless: true,
+      args: [
+        // Required for Docker version of Puppeteer
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        // This will write shared memory files into /tmp instead of /dev/shm,
+        // because Docker’s default for /dev/shm is 64MB
+        '--disable-dev-shm-usage',
+      ] });
     const page = await browser.newPage();
     await page.goto("https://itp.gov.iq/carSearch.php");
 
