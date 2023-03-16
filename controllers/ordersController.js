@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const cloudscraper = require("cloudscraper");
 const { NotificationsDriver, NotificationAdmin, NotificationsClient } = require("../models/Notifications");
 const Pusher = require("pusher");
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-core");
 
 /**
  * @desc Create New Order
