@@ -15,6 +15,7 @@
     "multer": "^1.4.5-lts.1",
     "nodemon": "^2.0.20",
     "puppeteer": "^19.7.2",
+    "puppeteer-core": "^19.7.5",
     "pusher": "^5.1.2"
   },
   "name": "server",
