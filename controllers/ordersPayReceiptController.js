@@ -204,7 +204,7 @@ const payOrder = async (req, res) => {
       serviceType: "pay order by receipt",
       msisdn: process.env.MSISDN,
       orderId: req.params.id,
-      redirectUrl: "https://around-app.netlify.app/user/orders-by-receipts",
+      redirectUrl: "https://project-stackdeans.netlify.app/user/orders-by-receipts",
     },
     process.env.SECRET,
     {
