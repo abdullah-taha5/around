@@ -7,7 +7,10 @@ const {
   NotificationsClient,
 } = require("../models/Notifications");
 const Pusher = require("pusher");
-const puppeteer = require("puppeteer");
+const puppeteer = require('puppeteer-extra');
+const hidden = require('puppeteer-extra-plugin-stealth')
+// require executablePath from puppeteer
+const {executablePath} = require('puppeteer')
 
 /**
  * @desc Create New Order
@@ -113,19 +116,14 @@ const getSingleOrder = async (req, res) => {
  */
 const searchOrder = async (req, res) => {
   (async () => {
-    const browser = await puppeteer.launch({
-      args: [
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-        "--single-process",
-        "--no-zygote",
-      ],
-      executablePath:
-        process.env.NODE_ENV === "developer"
-          ? process.env.PUPPETEER_EXECUTABLE_PATH
-          : puppeteer.executablePath(),
-    });
+    puppeteer.use(hidden())
+    const browser = await puppeteer.launch({  args: ['--no-sandbox',],
+    headless: false,
+    ignoreHTTPSErrors: true,
 
+    // add this
+    executablePath: executablePath(),});
+    
     const page = await browser.newPage();
     await page.goto("https://itp.gov.iq/carSearch.php");
 
@@ -343,7 +341,7 @@ const payOrder = async (req, res) => {
       serviceType: "pay order",
       msisdn: process.env.MSISDN,
       orderId: req.params.id,
-      redirectUrl: "https://around-app.netlify.app/user/orders",
+      redirectUrl: "https://project-stackdeans.netlify.app/user/orders",
     },
     process.env.SECRET,
     {
