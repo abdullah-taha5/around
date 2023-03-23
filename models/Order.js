@@ -85,7 +85,9 @@ const FineReceiptSchema = mongoose.Schema(
     },
     dateFine: {
       type: String,
-      required: true,
+    },
+    timeFine: {
+      type: String,
     },
     fineReceipt: {
       type: String,
@@ -123,7 +125,6 @@ function validateCreateOrderPayFine(obj) {
     paymentStatus: Joi.string().trim(),
     vehicleNumber: Joi.string().trim(),
     receiptNumber: Joi.string().trim(),
-    dateFine: Joi.string().trim(),
   });
   return schema.validate(obj);
 }

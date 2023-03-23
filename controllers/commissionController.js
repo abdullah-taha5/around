@@ -36,9 +36,10 @@ const getCommissions = async (req, res) => {
  */
 const createCommissionByReceipts = async (req, res) => {
   // Change commission and save it to DB
-  const { commission } = req.body;
+  const { commission, price } = req.body;
   const newCommission = await CommissionByReceipts.create({
     commission,
+    price
   });
   // Send response to the client
   res.status(201).json(newCommission);
@@ -46,13 +47,13 @@ const createCommissionByReceipts = async (req, res) => {
 
 /**
  * @desc Get Commissions By Receipts
- * @route /api/commission/receipts
+ * @route /api/commission/receipts/:price
  * @method GET
  * @access public
  */
 
 const getCommissionByReceipts = async (req, res) => {
-  const commissions = await CommissionByReceipts.find();
+  const commissions = await CommissionByReceipts.find({price: req.params.price});
   res.status(200).json(commissions[commissions.length - 1]);
 };
 module.exports = { createCommission, getCommissions, createCommissionByReceipts, getCommissionByReceipts};

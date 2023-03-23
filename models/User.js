@@ -16,6 +16,7 @@ const UserSchema = mongoose.Schema(
       },
     },
     adminRole: { type: Boolean, required: true },
+    vehicleNumber: { type: Number, trim: true },
     phone: { type: Number, trim: true },
     fullAddress: { type: String, trim: true },
     floorNumber: { type: Number, trim: true },
@@ -58,6 +59,7 @@ function validateRegisterUser(obj) {
     username: Joi.string().trim().min(3).max(100).required(),
     phoneNumber: Joi.number().required(),
     password: Joi.string().trim().min(8).required(),
+    vehicleNumber: Joi.number(),
     adminRole: Joi.boolean(),
   });
   return schema.validate(obj);
@@ -83,6 +85,8 @@ function validateUpdateUser(obj) {
     floorNumber: Joi.number(),
     flatNumber: Joi.number(),
     note: Joi.string().trim(),
+    vehicleNumber: Joi.number(),
+
   });
   return schema.validate(obj);
 }

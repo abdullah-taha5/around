@@ -98,6 +98,7 @@ const updateUserProfile = async (req, res) => {
       $set: {
         username: req.body.username,
         password: req.body.password,
+        vehicleNumber: req.body.vehicleNumber,
         adminRole: req.body.adminRole,
         phone: req.body.phone,
         fullAddress: req.body.fullAddress,

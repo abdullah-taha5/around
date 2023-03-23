@@ -11,7 +11,7 @@ const {
  * @access private (only admin)
  */
 const getNotificationsAdmin = async (req, res) => {
-  const notifications = await NotificationAdmin.find();
+  const notifications = await NotificationAdmin.find().sort({ createdAt: -1 });
   res.status(200).json(notifications);
 };
 
@@ -24,7 +24,7 @@ const getNotificationsAdmin = async (req, res) => {
 
 const deleteNotificationsAdmin = async (req, res) => {
   await NotificationAdmin.deleteMany();
-  res.status(200).json({ message: "Notifications deleted successfully" });
+  res.status(200).json({ message: "Nتم حذف الإشعارات بنجاح" });
 };
 
 /**
@@ -36,7 +36,7 @@ const deleteNotificationsAdmin = async (req, res) => {
 
 const deleteNotificationsClient = async (req, res) => {
   await NotificationsClient.deleteMany({ user: req.user.id });
-  res.status(200).json({ message: "Notifications deleted successfully" });
+  res.status(200).json({ message: "تم حذف الإشعارات بنجاح" });
 };
 /**
  * @desc Viewed Notification Client
@@ -61,7 +61,7 @@ const viewedNotificationsClient = async (req, res) => {
 
 const deleteNotificationsDriver = async (req, res) => {
   await NotificationsDriver.deleteMany({ driver: req.user.id });
-  res.status(200).json({ message: "Notifications deleted successfully" });
+  res.status(200).json({ message: "تم حذف الإشعارات بنجاح" });
 };
 
 /**

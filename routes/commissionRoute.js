@@ -16,6 +16,7 @@ router
 // /api/commission/receipts
 router
   .route("/receipts")
-  .post(verifyTokenAndAdmin, createCommissionByReceipts)
-  .get(getCommissionByReceipts);
+  .post(verifyTokenAndAdmin, createCommissionByReceipts);
+  
+  router.route("/receipts/:price").get(getCommissionByReceipts);
 module.exports = router;

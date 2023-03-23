@@ -1,12 +1,13 @@
 const { Order, validateCreateOrder, counterModel } = require("../models/Order");
 const jwt = require("jsonwebtoken");
 const cloudscraper = require("cloudscraper");
-const { NotificationsDriver, NotificationAdmin, NotificationsClient } = require("../models/Notifications");
+const {
+  NotificationsDriver,
+  NotificationAdmin,
+  NotificationsClient,
+} = require("../models/Notifications");
 const Pusher = require("pusher");
-const puppeteer = require('puppeteer-extra');
-const hidden = require('puppeteer-extra-plugin-stealth')
-// require executablePath from puppeteer
-const {executablePath} = require('puppeteer')
+const puppeteer = require("puppeteer");
 
 /**
  * @desc Create New Order
@@ -41,8 +42,8 @@ const createOrder = async (req, res) => {
 
       // Send response to the client
       await res.status(201).json(order);
-     
-      NotificationAdmin.create({ notification: `New Order #${seqId}` });
+
+      NotificationAdmin.create({ notification: `طلب جديد #${seqId}` });
       const pusher = new Pusher({
         appId: "1560841",
         key: "bc4967bba1165cd99700",
@@ -52,7 +53,7 @@ const createOrder = async (req, res) => {
       });
 
       pusher.trigger("my-channel", "notifications-admin", {
-        message: `New Order #${seqId}`,
+        message: `طلب جديد #${seqId}`,
       });
     }
   );
@@ -69,9 +70,9 @@ const getAllOrders = async (req, res) => {
   const ORDER_PER_PAGE = 10;
   const { pageNumber } = req.query;
   const orders = await Order.find()
-  .skip((pageNumber - 1) * ORDER_PER_PAGE)
-  .limit(ORDER_PER_PAGE)
-  .sort({ createdAt: -1 })
+    .skip((pageNumber - 1) * ORDER_PER_PAGE)
+    .limit(ORDER_PER_PAGE)
+    .sort({ createdAt: -1 })
     .populate("user", ["-password"])
     .populate("driver", ["-password"]);
   res.status(200).json(orders);
@@ -99,7 +100,7 @@ const getSingleOrder = async (req, res) => {
     .populate("user", ["-password"])
     .populate("driver", ["-password"]);
   if (!order) {
-    return res.status(404).json({ message: "Order not found" });
+    return res.status(404).json({ message: "الطلب غير موجود" });
   }
   res.status(200).json(order);
 };
@@ -112,14 +113,19 @@ const getSingleOrder = async (req, res) => {
  */
 const searchOrder = async (req, res) => {
   (async () => {
-    puppeteer.use(hidden())
-    const browser = await puppeteer.launch({  args: ['--no-sandbox',],
-    headless: false,
-    ignoreHTTPSErrors: true,
+    const browser = await puppeteer.launch({
+      args: [
+        "--disable-setuid-sandbox",
+        "--no-sandbox",
+        "--single-process",
+        "--no-zygote",
+      ],
+      executablePath:
+        process.env.NODE_ENV === "developer"
+          ? process.env.PUPPETEER_EXECUTABLE_PATH
+          : puppeteer.executablePath(),
+    });
 
-    // add this
-    executablePath: executablePath(),});
-    
     const page = await browser.newPage();
     await page.goto("https://itp.gov.iq/carSearch.php");
 
@@ -141,7 +147,7 @@ const searchOrder = async (req, res) => {
       const total = await page.$eval("#blink", (el) => el.textContent.trim());
       res.json({ tbodyHtml, total });
     } catch (error) {
-      return res.status(404).json({ message: "Inserted data is wrong" });
+      return res.status(404).json({ message: "البيانات المكتوبة خاطئة" });
     }
 
     await browser.close();
@@ -158,12 +164,58 @@ const deleteOrder = async (req, res) => {
   const order = await Order.findById(id).populate("user", ["-password"]);
 
   if (!order) {
-    return res.status(404).json({ message: "Blog not found" });
+    return res.status(404).json({ message: "الطلب غير موجود" });
   }
   await Order.findByIdAndDelete(id);
 
-  res.status(200).json({ message: "Order deleted successfully" });
+  res.status(200).json({ message: "تم حذف الطلب بنجاح" });
 };
+/**
+ * @desc Multi Select Delete Orders
+ * @route /api/orders
+ * @method DELETE
+ * @access private (only admin and delegate)
+ */
+const multiSelectDeleteOrder = async (req, res) => {
+  await Order.deleteMany({
+    _id: {
+      $in: req.body,
+    },
+  });
+
+  res.status(200).json({ message: "حذف جميع الطلبات التي قمت بتحديدها" });
+};
+/**
+ * @desc Update Payment Status Order
+ * @route /api/orders/order/:id
+ * @method PUT
+ * @access private (only admin and delegate)
+ */
+const updatePaymentStatusByAdminAndDelegate = async (req, res) => {
+  const { id } = req.params;
+  const order = await Order.findByIdAndUpdate(
+    id,
+    { $set: { paymentStatus: "success" } },
+    { new: true }
+  );
+  res.json(order);
+};
+/**
+ * @desc Update Amount Order
+ * @route /api/orders/order/update/:id
+ * @method PUT
+ * @access private (only delegate)
+ */
+const updateAmountOrder = async (req, res) => {
+  const { id } = req.params;
+  const order = await Order.findByIdAndUpdate(
+    id,
+    { $set: { amount: req.body.amount } },
+    { new: true }
+  );
+  res.json(order);
+};
+
 
 /**
  * @desc Assign Driver
@@ -184,7 +236,41 @@ const assignDriver = async (req, res) => {
   )
     .populate("user", ["-password"])
     .populate("driver", ["-password"]);
-    NotificationsDriver.create({
+  NotificationsDriver.create({
+    driver: req.body.driver,
+    notification: req.body.notification,
+  });
+  const pusher = new Pusher({
+    appId: "1560841",
+    key: "bc4967bba1165cd99700",
+    secret: "d5ed6309cd0cd59cc7d0",
+    cluster: "eu",
+    useTLS: true,
+  });
+  await pusher.trigger("my-channel", "notifications-driver", {
+    message: req.body.notification,
+    driver: req.body.driver,
+  });
+
+  res.status(200).json(assignedDriver);
+};
+/**
+ * @desc Multi Select Assign Delegate
+ * @route /api/orders
+ * @method PUT
+ * @access private (only admin)
+ */
+const multiSelectAssignDelegate = async (req, res) => {
+  // Assign Delegate
+
+  const assignedDriver = await Order.updateMany(
+    { _id: { $in: req.body.idsOrders } },
+    { $set: { driver: req.body.driver } },
+    { multi: true }
+  )
+    .populate("user", ["-password"])
+    .populate("driver", ["-password"]);
+  NotificationsDriver.create({
     driver: req.body.driver,
     notification: req.body.notification,
   });
@@ -261,8 +347,8 @@ const payOrder = async (req, res) => {
     },
     process.env.SECRET,
     {
-      expiresIn: '4h'
-  },
+      expiresIn: "4h",
+    },
     function (err, token) {
       cloudscraper
         .post({
@@ -276,13 +362,12 @@ const payOrder = async (req, res) => {
         .then((body) => {
           //  Getting the operation id
           const operationId = JSON.parse(body).id;
-          
+
           res
             .status(200)
             .json({ urlPay: requestUrl + operationId, operationId });
         })
         .catch((error) => {
-          
           res.json({ message: error });
         });
     }
@@ -323,5 +408,9 @@ module.exports = {
   updatePaymentStatus,
   orderStatus,
   searchOrder,
-  getOrdersCount
+  getOrdersCount,
+  updatePaymentStatusByAdminAndDelegate,
+  multiSelectAssignDelegate,
+  multiSelectDeleteOrder,
+  updateAmountOrder
 };

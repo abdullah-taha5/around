@@ -30,7 +30,7 @@ const registerDriver = async (req, res) => {
   const driver = await Driver.findOne({ phoneNumber });
 
   if (driver) {
-    return res.status(400).json({ message: "This driver already added" });
+    return res.status(400).json({ message: "تم إضافة هذا المندوب بالفعل" });
   } else {
     try {
       await Driver.create({
@@ -41,7 +41,7 @@ const registerDriver = async (req, res) => {
         vehicleNumber,
         vehicleColor,
       });
-      res.status(201).json({ message: "You Added Driver" });
+      res.status(201).json({ message: "قمت بإضافة مندوب" });
     } catch (error) {
       res.json({ status: "error", error });
     }
@@ -64,7 +64,7 @@ const loginDriver = async (req, res) => {
   const driver = await Driver.findOne({ phoneNumber });
 
   if (!driver) {
-    return res.status(400).json({ message: "Invalid Phone Number or password" });
+    return res.status(400).json({ message: "رقم الهاتف أو كلمة المرور غير صحيحة" });
   }
 
   const isPasswordValid = await bcrypt.compare(password, driver.password);
@@ -84,7 +84,7 @@ const loginDriver = async (req, res) => {
     );
     return res.json({ token });
   } else {
-    res.status(400).json({ message: "Invalid Phone Number or password" });
+    res.status(400).json({ message: "رقم الهاتف أو كلمة المرور غير صحيحة" });
   }
 };
 /**
@@ -136,7 +136,7 @@ const getDriver = async (req, res) => {
 const deleteDriverProfile = async (req, res) => {
   // Delete the user
   await Driver.findByIdAndDelete(req.params.id);
-  res.status(200).json({ message: "Driver deleted successfully" });
+  res.status(200).json({ message: "تم حذف المندوب" });
 };
 
 /**
@@ -180,7 +180,7 @@ const updateDriverProfile = async (req, res) => {
 const profilePhotoUpload = async (req, res) => {
   // Validation
   if (!req.file) {
-    return res.status(400).json({ message: "No image provided" });
+    return res.status(400).json({ message: "لم يتم تقديم أي صورة" });
   }
 
   // Get the user from DB
@@ -193,7 +193,7 @@ const profilePhotoUpload = async (req, res) => {
   await driver.save();
   // Send response to client
   res.status(200).json({
-    message: "successfully uploaded",
+    message: "تم تحميله بنجاح",
     profilePhoto: { url: req.file.filename },
   });
 };

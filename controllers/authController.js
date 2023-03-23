@@ -19,22 +19,23 @@ const register = async (req, res) => {
     return res.status(400).json({ message: error.details[0].message });
   }
 
-  const { username, phoneNumber, password, adminRole } = req.body;
+  const { username, phoneNumber, password, adminRole, vehicleNumber } = req.body;
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
   const user = await User.findOne({ phoneNumber });
 
   if (user) {
-    return res.status(400).json({ message: "This user already registered" });
+    return res.status(400).json({ message: "هذا المستخدم مسجل بالفعل" });
   } else {
     try {
       await User.create({
         username,
         phoneNumber,
         password: hashedPassword,
+        vehicleNumber,
         adminRole,
       });
-      res.status(201).json({ message: "You registered successfully" });
+      res.status(201).json({ message: "لقد سجلت بنجاح" });
     } catch (error) {
       res.json({ status: "error", error });
     }
@@ -58,7 +59,7 @@ const login = async (req, res) => {
 
 
   if (!user) {
-    return res.status(400).json({ message: "Invalid Phone Number or password" });
+    return res.status(400).json({ message: "رقم الهاتف أو كلمة المرور غير صحيحة" });
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -70,6 +71,7 @@ const login = async (req, res) => {
         username: user.username,
         phoneNumber: user.phoneNumber,
         profilePhoto: user.profilePhoto,
+        vehicleNumber: user.vehicleNumber,
         adminRole: user.adminRole,
         phone: user.phone,
         fullAddress: user.fullAddress,
@@ -81,7 +83,7 @@ const login = async (req, res) => {
     );
     return res.json({ token });
   } else {
-    res.status(400).json({ message: "Invalid Phone Number or password" });
+    res.status(400).json({ message: "رقم الهاتف أو كلمة المرور غير صحيحة" });
   }
 };
 
@@ -101,7 +103,7 @@ const adminLogin = async (req, res) => {
   const user = await User.findOne({ phoneNumber });
 
   if (!user) {
-    return res.status(400).json({ message: "Invalid Phone Number or password" });
+    return res.status(400).json({ message: "رقم الهاتف أو كلمة المرور غير صحيحة" });
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -123,7 +125,7 @@ const adminLogin = async (req, res) => {
     );
     return res.json({ token });
   } else {
-    res.status(400).json({ message: "Invalid Phone Number or password" });
+    res.status(400).json({ message: "رقم الهاتف أو كلمة المرور غير صحيحة" });
   }
 };
 module.exports = {
