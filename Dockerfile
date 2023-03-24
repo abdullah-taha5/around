@@ -7,5 +7,5 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 RUN npm ci
-COPY --chown=app:app . .
+COPY --chown=app:/usr/src/app . .
 CMD [ "node", "index.js" ]
