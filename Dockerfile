@@ -13,7 +13,6 @@ COPY . .
 
 RUN chmod 755 /usr/src/app
 
-CMD [ "npm", "start" ]
 
 
 FROM ghcr.io/puppeteer/puppeteer:19.7.2
