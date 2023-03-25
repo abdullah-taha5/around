@@ -16,6 +16,3 @@ RUN chmod 755 /usr/src/app/images
 
 CMD [ "npm", "start" ]
 
-
-
-WORKDIR /usr/src/app
