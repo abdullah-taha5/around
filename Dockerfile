@@ -8,11 +8,10 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm ci && chmod 755 /usr/src/app
 
 COPY . .
 
-RUN chmod 755 /usr/src/app/images
 
 CMD [ "npm", "start" ]
 
