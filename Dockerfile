@@ -1,17 +1,9 @@
 
-FROM ghcr.io/puppeteer/puppeteer:19.7.2
-
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
-
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+# install node_modules
+ADD package.json /usr/src/app/package.json
+RUN npm install
 
-RUN npm ci && chmod 755 /usr/src/app
-
-COPY . .
-
-
-CMD [ "npm", "start" ]
-
+# copy codebase to docker codebase
+ADD . /usr/src/app
