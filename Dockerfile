@@ -30,7 +30,7 @@ COPY package*.json ./
 
 USER node
 
-RUN NODE_ENV=development npm i
+RUN npm ci
 
 RUN npm install concurrently
 
