@@ -7,10 +7,9 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm ci
 
 COPY . .
 
-RUN chmod 755 /usr/src/app
+RUN chmod 755 /usr/src/app && npm install
 
 CMD [ "npm", "start" ]
