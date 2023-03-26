@@ -32,9 +32,6 @@ USER node
 
 RUN npm ci
 
-RUN npm install concurrently
-
-RUN npm install chrome-aws-lambda
 
 COPY --chown=node:node . .
 
