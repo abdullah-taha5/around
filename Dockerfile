@@ -7,9 +7,8 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-
 COPY . .
 
-RUN chmod 755 /usr/src/app && npm install
+RUN chmod 755 /usr/src/app
 
 CMD [ "npm", "start" ]
