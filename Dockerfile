@@ -1,19 +1,19 @@
-FROM node:19.5.0-alpine
+# FROM node:19.5.0-alpine
 
-ARG NODE_ENV=development
-ENV NODE_ENV=${NODE_ENV}
+# ARG NODE_ENV=development
+# ENV NODE_ENV=${NODE_ENV}
 
-WORKDIR /usr/src/app
+# WORKDIR /usr/src/app
 
-COPY package*.json ./
+# COPY package*.json ./
 
-RUN npm install
+# RUN npm install
 
-COPY . .
+# COPY . .
 
-RUN chmod 777 /usr/src/app
+# RUN chmod 777 /usr/src/app
 
-CMD [ "npm", "start" ]
+# CMD [ "npm", "start" ]
 
 FROM ghcr.io/puppeteer/puppeteer:19.7.2
 
