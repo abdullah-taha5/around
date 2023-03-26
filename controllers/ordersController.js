@@ -8,7 +8,7 @@ const {
 } = require("../models/Notifications");
 const Pusher = require("pusher");
 const puppeteer = require("puppeteer");
-
+const locateChrome = require('locate-chrome');
 /**
  * @desc Create New Order
  * @route /api/orders
@@ -113,7 +113,7 @@ const getSingleOrder = async (req, res) => {
  */
 const searchOrder = async (req, res) => {
   (async () => {
-
+    const executablePath = await new Promise(resolve => locateChrome(arg => resolve(arg)));
     const browser = await puppeteer.launch({
       args: [
         "--disable-setuid-sandbox",
@@ -121,10 +121,7 @@ const searchOrder = async (req, res) => {
         "--single-process",
         "--no-zygote",
       ],
-      executablePath:
-        process.env.NODE_ENV === "developer"
-          ? process.env.PUPPETEER_EXECUTABLE_PATH
-          : puppeteer.executablePath(),
+      executablePath,
     });
 
 
