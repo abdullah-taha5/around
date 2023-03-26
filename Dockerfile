@@ -30,4 +30,4 @@ COPY . .
 
 RUN chmod 777 /usr/src/app
 
-CMD [ "npm", "start" ]
+CMD [ "node", "index.js" ]
