@@ -15,7 +15,7 @@
 
 # CMD [ "npm", "start" ]
 
-FROM node:slim
+FROM node:19.5.0-alpine
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
