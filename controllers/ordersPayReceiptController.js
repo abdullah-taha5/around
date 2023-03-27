@@ -249,7 +249,7 @@ const updatePaymentStatusByAdminAndDelegate = async (req, res) => {
   const { id } = req.params;
   const order = await OrderPayFineReceipt.findByIdAndUpdate(
     id,
-    { $set: { paymentStatus: "success" } },
+    { $set: { paymentStatus: req.body.status } },
     { new: true }
   );
   res.json(order);

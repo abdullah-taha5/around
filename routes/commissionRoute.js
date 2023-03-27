@@ -4,6 +4,7 @@ const {
   getCommissions,
   createCommissionByReceipts,
   getCommissionByReceipts,
+  getCommissionByReceiptsUpdate,
 } = require("../controllers/commissionController");
 const { verifyTokenAndAdmin } = require("../middlewares/verifyToken");
 
@@ -14,9 +15,11 @@ router
   .get(getCommissions);
 
 // /api/commission/receipts
-router
-  .route("/receipts")
-  .post(verifyTokenAndAdmin, createCommissionByReceipts);
-  
-  router.route("/receipts/:price").get(getCommissionByReceipts);
+router.route("/receipts").post(verifyTokenAndAdmin, createCommissionByReceipts);
+
+// /api/commission/receipts/:price
+router.route("/receipts/:price").get(getCommissionByReceipts);
+
+// /api/commission/receipts-update
+router.route("/receipts-update").get(getCommissionByReceiptsUpdate);
 module.exports = router;
