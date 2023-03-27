@@ -40,10 +40,8 @@ COPY package.json ./
 RUN npm install
 
 # Copy handler function and tsconfig
-COPY index.js ./
+COPY /controllers/ordersController.js ./
 
-# Expose app
-EXPOSE 3000
 
 # Run app
 CMD ["npm", "start"]
