@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install gnupg wget chromium -y && \
   apt-get install google-chrome-stable -y --no-install-recommends && \
   rm -rf /var/lib/apt/lists/*
 
-COPY ./backend/ .
+COPY . .
 
 RUN npm install
 
