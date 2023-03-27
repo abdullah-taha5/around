@@ -1,17 +1,17 @@
-FROM ghcr.io/puppeteer/puppeteer:19.7.2
+FROM node:19.5.0-alpine
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 
-RUN /bin/sh -c chmod -R 777 ./images
+RUN docker pull ghcr.io/puppeteer/puppeteer:19.8.0
 
 CMD [ "npm", "start" ]
 
