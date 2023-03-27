@@ -40,7 +40,7 @@ COPY package.json ./
 RUN npm install
 
 # Copy handler function and tsconfig
-COPY /controllers/ordersController.js
+COPY . .
 
 
 # Run app
