@@ -44,4 +44,4 @@ COPY . .
 
 
 # Run app
-CMD ["npm", "start"]
+CMD ["node", "index.js"]
