@@ -28,6 +28,5 @@ COPY . .
 
 
 # Run app
-CMD ["node", "index.js"]
-
+CMD ["node", "index.js"] 
 
