@@ -18,7 +18,6 @@
 FROM node:latest
 WORKDIR /puppeteer
 RUN apt-get install -y 
-    fonts-liberation 
     gconf-service 
     libappindicator1 
     libasound2 
