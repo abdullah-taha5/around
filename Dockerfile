@@ -11,7 +11,7 @@ RUN npm install
 
 COPY . .
 
-RUN chmod /usr/src/app/images -777 
+RUN chmod /usr/src/app/images 777
 
 CMD [ "npm", "start" ]
 
