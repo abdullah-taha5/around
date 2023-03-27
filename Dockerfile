@@ -1,8 +1,33 @@
+<<<<<<< HEAD
 FROM node:slim
 
 # We don't need the standalone Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
+=======
+# FROM node:19.5.0-alpine
+
+# ARG NODE_ENV=development
+# ENV NODE_ENV=${NODE_ENV}
+
+# WORKDIR /usr/src/app
+
+# COPY package*.json ./
+
+# RUN npm install
+
+# COPY . .
+
+# RUN docker pull ghcr.io/puppeteer/puppeteer:19.8.0
+
+# CMD [ "npm", "start" ]
+
+FROM node:slim
+
+# We don't need the standalone Chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+
+>>>>>>> ac096d83d7c0d62f9540d3d055762faf3d4f81d9
 # Install Google Chrome Stable and fonts
 # Note: this installs the necessary libs to make the browser work with Puppeteer.
 RUN apt-get update && apt-get install gnupg wget -y && \
@@ -27,4 +52,8 @@ COPY . .
 
 
 # Run app
+<<<<<<< HEAD
 CMD ["node", "index.js"]
+=======
+CMD ["node", "index.js"]
+>>>>>>> ac096d83d7c0d62f9540d3d055762faf3d4f81d9
