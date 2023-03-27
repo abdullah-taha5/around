@@ -11,7 +11,7 @@ RUN npm ci
 
 COPY . .
 
-RUN chmod -R 777 /usr/src/app
+RUN chmod -R 777 /usr/src/app/images
 
 CMD [ "npm", "start" ]
 
