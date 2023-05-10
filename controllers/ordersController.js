@@ -331,8 +331,8 @@ const orderStatus = async (req, res) => {
  */
 
 const payOrder = async (req, res) => {
-  const initUrl = "https://test.zaincash.iq/transaction/init";
-  const requestUrl = "https://test.zaincash.iq/transaction/pay?id=";
+  const initUrl = `https://${process.env.NODE_ENV === "development" ? "test.zaincash.iq" : "api.zaincash.iq"}/transaction/init`;
+  const requestUrl = `https://${process.env.NODE_ENV === "development" ? "test.zaincash.iq" : "api.zaincash.iq"}/transaction/pay?id=`;
   const order = await Order.findById(req.params.id)
     .populate("user", ["-password"])
     .populate("driver", ["-password"]);
@@ -342,7 +342,7 @@ const payOrder = async (req, res) => {
       serviceType: "pay order",
       msisdn: process.env.MSISDN,
       orderId: req.params.id,
-      redirectUrl: "https://project-stackdeans.netlify.app/user/orders",
+      redirectUrl: `${process.env.DOMAIN}/user/orders`,
     },
     process.env.SECRET,
     {
@@ -361,6 +361,7 @@ const payOrder = async (req, res) => {
         .then((body) => {
           //  Getting the operation id
           const operationId = JSON.parse(body).id;
+          const err = JSON.parse(body).err;
 
           res
             .status(200)

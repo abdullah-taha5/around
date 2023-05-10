@@ -77,11 +77,9 @@ const FineReceiptSchema = mongoose.Schema(
     },
     vehicleNumber: {
       type: String,
-      required: true,
     },
     receiptNumber: {
       type: String,
-      required: true,
     },
     dateFine: {
       type: String,

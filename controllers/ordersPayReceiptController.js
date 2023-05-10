@@ -221,7 +221,7 @@ const deleteOrderPayReceipt = async (req, res) => {
   }
   await OrderPayFineReceipt.findByIdAndDelete(id);
 
-  res.status(200).json({ message: "Order deleted successfully" });
+  res.status(200).json({ message: "حذف الطلب بنجاح" });
 };
 
 /**
@@ -335,8 +335,8 @@ const multiSelectAssignDelegate = async (req, res) => {
  */
 
 const payOrder = async (req, res) => {
-  const initUrl = "https://test.zaincash.iq/transaction/init";
-  const requestUrl = "https://test.zaincash.iq/transaction/pay?id=";
+  const initUrl = `https://${process.env.NODE_ENV === "development" ? "test.zaincash.iq" : "api.zaincash.iq"}/transaction/init`;
+  const requestUrl = `https://${process.env.NODE_ENV === "development" ? "test.zaincash.iq" : "api.zaincash.iq"}/transaction/pay?id=`;
   const order = await OrderPayFineReceipt.findById(req.params.id)
     .populate("user", ["-password"])
     .populate("driver", ["-password"]);
@@ -346,7 +346,7 @@ const payOrder = async (req, res) => {
       serviceType: "pay order by receipt",
       msisdn: process.env.MSISDN,
       orderId: req.params.id,
-      redirectUrl: "https://project-stackdeans.netlify.app/user/orders-by-receipts",
+      redirectUrl: `${process.env.DOMAIN}/user/orders-by-receipts`,
     },
     process.env.SECRET,
     {
@@ -412,7 +412,7 @@ const updatePaymentStatus = async (req, res) => {
 const updateDriverReceipt = async (req, res) => {
   // Validation for image
   if (!req.file) {
-    return res.status(400).json({ message: "No image provided" });
+    return res.status(400).json({ message: "لا يوجد صورة" });
   }
 
   const newReceiptUpload = await OrderPayFineReceipt.findByIdAndUpdate(
