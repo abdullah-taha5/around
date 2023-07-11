@@ -14,7 +14,7 @@ const searchVehicles = async (req, res) => {
   let vehicleTypes = [];
   let vehiclePlaces = [];
   try {
-    let { data } = await axios.get("https://itp.gov.iq/carSearch.php");
+    let { data } = await axios.get("https://itp.gov.iq/carSearchn.php");
     let $ = await cheerio.load(data);
     $(
       "#block-gavias-batiz-content > div > form > table > tbody > tr:nth-child(1) > td:nth-child(2) > select option"
